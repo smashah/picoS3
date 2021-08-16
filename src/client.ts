@@ -145,6 +145,11 @@ export const getObjectBinary: (options: S3GetOptions) => Promise<any> = async (o
     return res.data
 }
 
+export const getTextFile : (options: S3GetOptions) => Promise<string> = async (options: S3GetOptions) => {
+    const buff = await getObjectBuffer(options)
+    return buff.toString();
+}
+
 export const getObjectBuffer: (options: S3GetOptions) => Promise<Buffer> = async (options: S3GetOptions) => {
     const bin = await getObjectBinary(options)
     return Buffer.from(bin, 'binary');
