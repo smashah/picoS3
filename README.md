@@ -1,2 +1,27 @@
-# s3lim
-Slim S3 client that doesn't require the aws sdk. Be sure to 🌟 this repository for updates!
+
+# Pico S3
+
+A super lightweight S3 client that doesn't require the aws sdk. Be sure to 🌟 this repository for updates!
+
+## Installation
+
+```bash
+> npm i pico-s3
+```
+
+## Example
+
+```javascript
+const p3 = new PicoS3({
+    provider: process.env.PICO_S3_CLOUD_PROVIDER,
+    region: process.env.PICO_S3_REGION,
+    bucket: process.env.PICO_S3_BUCKET,
+    accessKeyId: process.env.PICO_S3_ACCESS_KEY_ID,
+    secretAccessKey: process.env.PICO_S3_SECRET_ACCESS_KEY,
+});
+
+const URL = await p3.upload({
+    file: dataUrl,
+    filename: "cool new file"
+})
+```
