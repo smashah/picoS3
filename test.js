@@ -59,3 +59,16 @@ test.serial('Make sure non existent file throws FileNotFoundError', async t => {
 	}, {instanceOf: FileNotFoundError});
 	t.is(error.message, `File /${resolvePath(options)} not found in ${CLOUD_PROVIDERS.AWS}`);
 });
+
+
+test('Upload a Text File, check if it uploaded correctly', async t => {
+    const link = await p3.upload({
+        ...options,
+        filename: 'text.data.json',
+        file: `data:text/plain;base64,${Buffer.from('SGVsbG8sIFdvcmxkIQ==').toString('base64')}`
+    })
+	t.is(link, `https://${s3RequestOptions.bucket}.s3.${s3RequestOptions.region}.amazonaws.com/${resolvePath({
+        ...options,
+        filename: 'text.data.json'
+    })}`);
+});
