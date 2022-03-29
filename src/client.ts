@@ -67,7 +67,7 @@ export const resolvePath = (options: S3GetOptions | S3UploadOptions | {
     "GCP": {
         host: ({ bucket }: any) => `${bucket}.storage.googleapis.com`,
         url: ({ bucket, filename, directory }: any) => `https://${bucket}.storage.googleapis.com/${resolvePath({filename, directory})}`,
-        res: ({ bucket, filename, directory }: any) => `https://storage.cloud.google.com/${bucket}/${resolvePath({filename, directory})}`
+        res: ({ bucket, filename, directory }: any) => `https://storage.googleapis.com/${bucket}/${resolvePath({filename, directory})}`
     },
     "AWS": {
         host: ({ bucket }: any) => `${bucket}.s3.amazonaws.com`,
