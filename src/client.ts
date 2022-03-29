@@ -28,7 +28,8 @@ export type DataURL = string;
 export enum CLOUD_PROVIDERS {
     GCP = "GCP",
     WASABI = "WASABI",
-    AWS = "AWS"
+    AWS = "AWS",
+    DO = "DO"
 }
 
 export type S3RequestOptions = {
