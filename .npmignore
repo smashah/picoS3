@@ -2,3 +2,4 @@ src/
 .env
 test.js
 tsconfig.json
+**.ignore.**
