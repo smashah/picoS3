@@ -29,6 +29,7 @@ export enum CLOUD_PROVIDERS {
     GCP = "GCP",
     WASABI = "WASABI",
     AWS = "AWS",
+    CONTABO = "CONTABO",
     DO = "DO"
 }
 
@@ -84,6 +85,11 @@ export const resolvePath = (options: S3GetOptions | S3UploadOptions | {
         host: ({ region }: any) => `${region}.digitaloceanspaces.com`,
         url: ({ bucket, filename, directory, region }: any) => `https://${region}.digitaloceanspaces.com/${resolvePath({filename, directory: `${bucket}${directory}`})}`,
         res: ({ bucket, filename, directory, region }: any) => `https://${region}.digitaloceanspaces.com/${resolvePath({filename, directory: `${bucket}${directory}`})}`
+    },
+    "CONTABO": {
+        host: ({ region }: any) => `${region}.contabostorage.com`,
+        url: ({ bucket, filename, directory, region }: any) => `https://${region}.contabostorage.com/${resolvePath({filename, directory: `${bucket}${directory}`})}`,
+        res: ({ bucket, filename, directory, region }: any) => `https://${region}.contabostorage.com/${resolvePath({filename, directory: `${bucket}${directory}`})}`
     },
 }
 
