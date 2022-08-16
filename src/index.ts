@@ -54,6 +54,11 @@ export class PicoS3 {
     public getProviderConfig() {
         return getProviderConfig(this.options.provider);
     }
+
+    public getProvider(){
+        return this.options.provider;
+    }
+
     public async getObjectBuffer(options: S3GetOptions) {
         return await getObjectBuffer({
             ...this.options,
