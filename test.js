@@ -10,6 +10,7 @@ const s3RequestOptions = {
     bucket: process.env.PICO_S3_BUCKET,
     accessKeyId: process.env.PICO_S3_ACCESS_KEY_ID,
     secretAccessKey: process.env.PICO_S3_SECRET_ACCESS_KEY,
+    host: process.env.PICO_S3_HOST,
 }
 
 const options = {
@@ -21,11 +22,11 @@ const options = {
 const p3 = new PicoS3(s3RequestOptions);
 
 test.serial('Upload a DataURL, check if it uploaded correctly', async t => {
-    const link = await p3.upload({
-        ...options,
-        file
-    })
-	t.is(link, `https://${s3RequestOptions.bucket}.s3.${s3RequestOptions.region}.amazonaws.com/${resolvePath(options)}`);
+        const link = await p3.upload({
+            ...options,
+            file
+        })
+	    t.is(link,  p3.getProviderConfig().res(options));
 });
 
 test.serial('Get the uploaded file', async t => {
@@ -57,7 +58,7 @@ test.serial('Make sure non existent file throws FileNotFoundError', async t => {
 	const error = await t.throwsAsync(async () => {
         return await p3.getObjectDataUrl(options)
 	}, {instanceOf: FileNotFoundError});
-	t.is(error.message, `File /${resolvePath(options)} not found in ${CLOUD_PROVIDERS.AWS}`);
+	t.is(error.message, `File /${resolvePath(options)} not found in ${p3.getProvider()}`);
 });
 
 
@@ -67,8 +68,8 @@ test('Upload a Text File, check if it uploaded correctly', async t => {
         filename: 'text.data.json',
         file: `data:text/plain;base64,${Buffer.from('SGVsbG8sIFdvcmxkIQ==').toString('base64')}`
     })
-	t.is(link, `https://${s3RequestOptions.bucket}.s3.${s3RequestOptions.region}.amazonaws.com/${resolvePath({
+	t.is(link, p3.getProviderConfig().res({
         ...options,
         filename: 'text.data.json'
-    })}`);
+    }));
 });
