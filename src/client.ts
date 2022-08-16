@@ -3,6 +3,7 @@ import aws4 from 'aws4';
 import { AxiosResponse } from 'axios';
 const db = require('debug')('pico-s3')
 const err = require('debug')('pico-s3:error')
+import crypto from 'crypto';
 
 export class FileNotFoundError extends Error {
     constructor(message: string) {
@@ -116,8 +117,10 @@ export const s3Request = (options: S3RequestOptions, extendedRequestOptions?: {
     const _ = PROVIDERS[provider];
     if (!_) throw new Error(`Invalid provider ${provider}. Valid providers: ${Object.keys(PROVIDERS)}`);
     const headers = {
-        ...extendedRequestOptions?.headers || {},
-        'x-amz-content-sha256': 'UNSIGNED-PAYLOAD'
+        ...extendedRequestOptions?.headers || {}
+    }
+    if(_host.includes("https://") && !headers['x-amz-content-sha256'] ) {
+        headers['x-amz-content-sha256'] = 'UNSIGNED-PAYLOAD'
     }
     delete extendedRequestOptions?.headers;
     return axios(aws4.sign({
@@ -140,15 +143,18 @@ export const upload: (options: S3UploadOptions) => Promise<string> = async (opti
     const _ = PROVIDERS[provider];
     if (!file || file === null) throw new Error("File isnull or undefined")
     const path = `/${resolvePath(options)}`
+    const base64 = file.split(',')[1];
+    const filebuf =  Buffer.from(base64 as string, 'base64');
     try {
         const START = Date.now();
         db(`Uploading ${path} to ${provider}`);
         await s3Request(options, {
             method: 'PUT',
             path,
-            data: Buffer.from(file.split(',')[1] as string, 'base64'),
+            data: filebuf,
             headers: {
                 'Content-Type': (file.match(/[^:\s*]\w+\/[\w-+\d.]+(?=[;| ])/) || ["application/octet-stream"])[0],
+                'x-amz-content-sha256' : crypto.createHash('sha256').update(filebuf).digest('hex') || 'UNSIGNED-PAYLOAD'
             },
         });
         const END = Date.now() - START;
