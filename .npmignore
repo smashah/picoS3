@@ -1,5 +1,6 @@
 src/
 .env
+.env*
 test.js
 tsconfig.json
 **.ignore.**
