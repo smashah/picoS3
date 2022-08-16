@@ -124,6 +124,8 @@ export const s3Request = (options: S3RequestOptions, extendedRequestOptions?: {
     const { provider, accessKeyId, secretAccessKey } = options;
     const region = provider === CLOUD_PROVIDERS.GCP ? 'region' : options.region;
     const _ = PROVIDERS[provider];
+    const _host = _.host(options)
+    const host = _host.replace("https://", "").replace("http://", "");
     if (!_) throw new Error(`Invalid provider ${provider}. Valid providers: ${Object.keys(PROVIDERS)}`);
     const headers = {
         ...extendedRequestOptions?.headers || {}
@@ -132,14 +134,16 @@ export const s3Request = (options: S3RequestOptions, extendedRequestOptions?: {
         headers['x-amz-content-sha256'] = 'UNSIGNED-PAYLOAD'
     }
     delete extendedRequestOptions?.headers;
-    return axios(aws4.sign({
-        host: _.host(options),
+    const toSign = {
+        host,
         url: _.url(options),
         service: 's3',
         region,
         headers,
-        ...extendedRequestOptions
-    },
+        ...extendedRequestOptions,
+    }
+    if(provider === CLOUD_PROVIDERS.MINIO) toSign['path'] = _.url(options).replace(_host, "")
+    return axios(aws4.sign(toSign,
         {
             accessKeyId,
             secretAccessKey
