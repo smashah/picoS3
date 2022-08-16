@@ -96,9 +96,9 @@ export type SERVICE_PROVIDER_CONFIG = {
         res: ({ bucket, filename, directory, region }: any) => `https://s3.${region}.wasabisys.com/${bucket}/${resolvePath({filename, directory})}`
     },
     "DO": {
-        host: ({ region }: any) => `${region}.digitaloceanspaces.com`,
-        url: ({ bucket, filename, directory, region }: any) => `https://${region}.digitaloceanspaces.com/${resolvePath({filename, directory: `${bucket}${directory}`})}`,
-        res: ({ bucket, filename, directory, region }: any) => `https://${region}.digitaloceanspaces.com/${resolvePath({filename, directory: `${bucket}${directory}`})}`
+        host: ({ region, bucket }: any) => `${bucket}.${region}.digitaloceanspaces.com`,
+        url: ({ bucket, filename, directory, region }: any) => `https://${bucket}.${region}.digitaloceanspaces.com/${resolvePath({filename, directory: `${directory}`})}`,
+        res: ({ bucket, filename, directory, region }: any) => `https://${bucket}.${region}.digitaloceanspaces.com/${resolvePath({filename, directory: `${directory}`})}`
     },
     "CONTABO": {
         host: ({ region }: any) => `${region}.contabostorage.com`,
