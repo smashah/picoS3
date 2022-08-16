@@ -68,10 +68,18 @@ export const resolvePath = (options: S3GetOptions | S3UploadOptions | {
     return options.directory ? `${directory}/${options.filename}` : `${options.filename}`
 }
 
+export type SERVICE_PROVIDER_CONFIG = {
+    host: (x: S3RequestOptions) => string,
+    url: (x: S3GetOptions | S3RequestOptions) => string,
+    res: (x: S3GetOptions | S3RequestOptions) => string,
+}
+
 /**
  * Please submit a new issue if you need another s3 compatible provider.
  */
- const PROVIDERS = {
+ const PROVIDERS : {
+    [provierName: string]: SERVICE_PROVIDER_CONFIG
+ } = {
     "GCP": {
         host: ({ bucket }: any) => `${bucket}.storage.googleapis.com`,
         url: ({ bucket, filename, directory }: any) => `https://${bucket}.storage.googleapis.com/${resolvePath({filename, directory})}`,
@@ -107,6 +115,7 @@ export const resolvePath = (options: S3GetOptions | S3UploadOptions | {
 
 export const getCloudUrl: (options: S3RequestOptions) => string = (options: S3RequestOptions) => PROVIDERS[options.provider].res(options);
 
+export const getProviderConfig: (provider : CLOUD_PROVIDERS) => SERVICE_PROVIDER_CONFIG = (provider) => PROVIDERS[provider]
 
 export const s3Request = (options: S3RequestOptions, extendedRequestOptions?: {
     method: "GET" | "PUT" | "POST" | "DELETE" | "HEAD" | "OPTIONS" | "PATCH" | "TRACE"

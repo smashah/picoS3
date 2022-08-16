@@ -1,4 +1,4 @@
-import { S3RequestOptions, getTextFile, CLOUD_PROVIDERS, S3UploadOptions, upload, S3GetOptions, getObject, getObjectBuffer, getObjectDataUrl, getObjectBinary, deleteObject, objectExists, getObjectMetadata, getObjectEtag } from './client';
+import { S3RequestOptions, getTextFile, CLOUD_PROVIDERS, S3UploadOptions, upload, S3GetOptions, getObject, getObjectBuffer, getObjectDataUrl, getObjectBinary, deleteObject, objectExists, getObjectMetadata, getObjectEtag, getProviderConfig } from './client';
 
 export * from './client'
 
@@ -30,6 +30,7 @@ export class PicoS3 {
                 provider: process.env.PICO_S3_CLOUD_PROVIDER as CLOUD_PROVIDERS,
                 region: process.env.PICO_S3_REGION,
                 bucket: process.env.PICO_S3_BUCKET,
+                host: process.env.PICO_S3_HOST,
                 accessKeyId: process.env.PICO_S3_ACCESS_KEY_ID,
                 secretAccessKey: process.env.PICO_S3_SECRET_ACCESS_KEY,
             }
@@ -50,6 +51,9 @@ export class PicoS3 {
         });
     }
 
+    public getProviderConfig() {
+        return getProviderConfig(this.options.provider);
+    }
     public async getObjectBuffer(options: S3GetOptions) {
         return await getObjectBuffer({
             ...this.options,
