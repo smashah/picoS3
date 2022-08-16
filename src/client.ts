@@ -30,7 +30,8 @@ export enum CLOUD_PROVIDERS {
     WASABI = "WASABI",
     AWS = "AWS",
     CONTABO = "CONTABO",
-    DO = "DO"
+    DO = "DO",
+    MINIO = "MINIO"
 }
 
 export type S3RequestOptions = {
@@ -38,7 +39,11 @@ export type S3RequestOptions = {
     accessKeyId: string,
     secretAccessKey: string,
     region?: string,
-    bucket: string
+    bucket: string,
+    /**
+     * Only relevant for MinIO
+     */
+    host?: string,
 }
 
 export type S3UploadOptions = {
@@ -91,6 +96,11 @@ export const resolvePath = (options: S3GetOptions | S3UploadOptions | {
         url: ({ bucket, filename, directory, region }: any) => `https://${region}.contabostorage.com/${resolvePath({filename, directory: `${bucket}${directory}`})}`,
         res: ({ bucket, filename, directory, region }: any) => `https://${region}.contabostorage.com/${resolvePath({filename, directory: `${bucket}${directory}`})}`
     },
+    "MINIO": {
+        host: ({ host }: any) => `${host}`,
+        url: ({ bucket, filename, directory, host }: any) => `${host}/${bucket}/${resolvePath({filename, directory: `${directory}`})}`,
+        res: ({ bucket, filename, directory, host }: any) => `${host}/${bucket}/${resolvePath({filename, directory: `${directory}`})}`
+    }
 }
 
 
