@@ -18,6 +18,8 @@ const p3 = new PicoS3({
     bucket: process.env.PICO_S3_BUCKET,
     accessKeyId: process.env.PICO_S3_ACCESS_KEY_ID,
     secretAccessKey: process.env.PICO_S3_SECRET_ACCESS_KEY,
+    // With MiniIO, an API host must also be added. For example
+    //host: "http://127.0.0.1:9000"
 });
 
 const URL = await p3.upload({
