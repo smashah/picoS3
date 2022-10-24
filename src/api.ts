@@ -41,6 +41,9 @@ export type S3RequestOptions = {
     secretAccessKey: string,
     region?: string,
     bucket: string,
+    headers?: {
+        [k: string]: string
+    }
     /**
      * Only relevant for MinIO
      */
@@ -50,7 +53,8 @@ export type S3RequestOptions = {
 export type S3UploadOptions = {
     file: string,
     filename: string,
-    directory?: string
+    directory?: string,
+    public?: boolean
 } & S3RequestOptions
 
 
@@ -158,17 +162,23 @@ export const upload: (options: S3UploadOptions) => Promise<string> = async (opti
     const path = `/${resolvePath(options)}`
     const base64 = file.split(',')[1];
     const filebuf =  Buffer.from(base64 as string, 'base64');
+    const headers = {
+        'Content-Type': (file.match(/[^:\s*]\w+\/[\w-+\d.]+(?=[;| ])/) || ["application/octet-stream"])[0],
+        'x-amz-content-sha256' : crypto.createHash('sha256').update(filebuf).digest('hex') || 'UNSIGNED-PAYLOAD',
+        ...(options.headers || {}),
+        ...(options.public ? {
+            'x-amz-acl': 'public-read'
+        } : {})
+    }
     try {
         const START = Date.now();
         db(`Uploading ${path} to ${provider}`);
+        db(`Using Headers: ${JSON.stringify(headers)}`);
         await s3Request(options, {
             method: 'PUT',
             path,
             data: filebuf,
-            headers: {
-                'Content-Type': (file.match(/[^:\s*]\w+\/[\w-+\d.]+(?=[;| ])/) || ["application/octet-stream"])[0],
-                'x-amz-content-sha256' : crypto.createHash('sha256').update(filebuf).digest('hex') || 'UNSIGNED-PAYLOAD'
-            },
+            headers
         });
         const END = Date.now() - START;
         db(`${path} uploaded  to ${provider} in ${END}ms`);
