@@ -24,7 +24,8 @@ const p3 = new PicoS3(s3RequestOptions);
 test.serial('Upload a DataURL, check if it uploaded correctly', async t => {
         const link = await p3.upload({
             ...options,
-            file
+            file,
+            public: true
         })
 	    t.is(link,  p3.getProviderConfig().res(options));
 });
@@ -66,7 +67,8 @@ test('Upload a Text File, check if it uploaded correctly', async t => {
     const link = await p3.upload({
         ...options,
         filename: 'text.data.json',
-        file: `data:text/plain;base64,${Buffer.from('SGVsbG8sIFdvcmxkIQ==').toString('base64')}`
+        file: `data:text/plain;base64,${Buffer.from('SGVsbG8sIFdvcmxkIQ==').toString('base64')}`,
+        public: true
     })
 	t.is(link, p3.getProviderConfig().res({
         ...options,
