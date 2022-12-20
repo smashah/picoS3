@@ -1,4 +1,4 @@
-import { S3RequestOptions, getTextFile, CLOUD_PROVIDERS, S3UploadOptions, upload, S3GetOptions, getObject, getObjectBuffer, getObjectDataUrl, getObjectBinary, deleteObject, objectExists, getObjectMetadata, getObjectEtag, getProviderConfig } from './api';
+import { S3RequestOptions, getTextFile, CLOUD_PROVIDERS, S3UploadOptions, upload, S3GetOptions, getObject, getObjectBuffer, getObjectDataUrl, getObjectBinary, deleteObject, objectExists, getObjectMetadata, getObjectEtag, getProviderConfig, uploadBuffer, S3UploadBufferOptions, S3UploadDataUrlOptions } from './api';
 
 /**
  * A simple class wrapping of the pico s3 functions.
@@ -22,7 +22,7 @@ export class PicoS3 {
      * ```
      */
     constructor(options: S3RequestOptions | true) {
-        if(typeof options === "boolean" && options === true) {
+        if (typeof options === "boolean" && options === true) {
             this.options = {
                 provider: process.env.PICO_S3_CLOUD_PROVIDER as CLOUD_PROVIDERS,
                 region: process.env.PICO_S3_REGION,
@@ -32,13 +32,19 @@ export class PicoS3 {
                 secretAccessKey: process.env.PICO_S3_SECRET_ACCESS_KEY,
             }
         } else
-        this.options = options;
+            this.options = options;
     }
-    public async upload(options: S3UploadOptions) {
-        return await upload({
-            ...this.options,
-            ...options
-        });
+    public async upload(options: { file: Buffer | string } & S3UploadOptions) {
+        if (Buffer.isBuffer(options.file))
+            return await uploadBuffer({
+                ...this.options,
+                ...options
+            } as S3UploadBufferOptions);
+        else
+            return await upload({
+                ...this.options,
+                ...options
+            } as S3UploadDataUrlOptions);
     }
 
     public async getObject(options: S3GetOptions) {
@@ -52,7 +58,7 @@ export class PicoS3 {
         return getProviderConfig(this.options.provider);
     }
 
-    public getProvider(){
+    public getProvider() {
         return this.options.provider;
     }
 

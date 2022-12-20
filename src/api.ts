@@ -4,6 +4,17 @@ import { AxiosResponse } from 'axios';
 const db = require('debug')('pico-s3')
 const err = require('debug')('pico-s3:error')
 import crypto from 'crypto';
+import { import_ } from '@brillout/import'
+
+let _ft = null;
+
+const ft = async () =>{
+  if(!_ft) {
+    const x = await import_('file-type');
+    _ft = x
+  }
+  return _ft;
+}
 
 export class FileNotFoundError extends Error {
     constructor(message: string) {
@@ -50,12 +61,20 @@ export type S3RequestOptions = {
     host?: string,
 }
 
+
 export type S3UploadOptions = {
-    file: string,
     filename: string,
     directory?: string,
     public?: boolean
 } & S3RequestOptions
+
+export type S3UploadDataUrlOptions = {
+    file: string,
+} & S3UploadOptions
+
+export type S3UploadBufferOptions = {
+    file: Buffer,
+} & S3UploadOptions
 
 
 export type S3GetOptions = {
@@ -154,16 +173,19 @@ export const s3Request = (options: S3RequestOptions, extendedRequestOptions?: {
         }))
 }
 
-
-export const upload: (options: S3UploadOptions) => Promise<string> = async (options: S3UploadOptions) => {
+export const uploadBuffer: (options: S3UploadBufferOptions) => Promise<string> = async (options: S3UploadBufferOptions) => {
     const { provider, file } = options;
     const _ = PROVIDERS[provider];
     if (!file || file === null) throw new Error("File isnull or undefined")
     const path = `/${resolvePath(options)}`
-    const base64 = file.split(',')[1];
-    const filebuf =  Buffer.from(base64 as string, 'base64');
+    const _ftResult = await (await ft()).fileTypeFromBuffer(file);
+    const { mime } = _ftResult || {}
+    const filebuf = file;
+    /**
+     * Infer data type from filename
+     */
     const headers = {
-        'Content-Type': (file.match(/[^:\s*]\w+\/[\w-+\d.]+(?=[;| ])/) || ["application/octet-stream"])[0],
+        'Content-Type': mime || "application/octet-stream",
         'x-amz-content-sha256' : crypto.createHash('sha256').update(filebuf).digest('hex') || 'UNSIGNED-PAYLOAD',
         ...(options.headers || {}),
         ...(options.public ? {
@@ -187,6 +209,13 @@ export const upload: (options: S3UploadOptions) => Promise<string> = async (opti
         err("UPLOAD ERROR", path, provider, error.message);
         throw error;
     }
+};
+
+export const upload: (options: S3UploadDataUrlOptions) => Promise<string> = async (options: S3UploadDataUrlOptions) => {
+    return uploadBuffer({
+        ...options,
+        file: Buffer.isBuffer(options.file) ? options.file : Buffer.from(options.file.split(',')[1] as string, 'base64'),
+    })
 };
 
 export const getObjectBinary: (options: S3GetOptions) => Promise<any> = async (options: S3GetOptions) => {
