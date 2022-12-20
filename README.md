@@ -1,6 +1,8 @@
 
 # Pico S3
 
+[![npm version](https://badge.fury.io/js/pico-s3.svg)](https://badge.fury.io/js/pico-s3)
+
 A super lightweight S3 client that doesn't require the aws sdk. Be sure to 🌟 this repository for updates!
 
 ## Installation
