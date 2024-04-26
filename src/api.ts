@@ -31,7 +31,7 @@ export const getCloudUrl: (options: S3RequestOptions) => string = (options: S3Re
 
 export const getProviderConfig: (provider : CLOUD_PROVIDERS) => SERVICE_PROVIDER_CONFIG = (provider) => PROVIDERS[provider]
 
-export const s3Request = (options: S3RequestOptions, extendedRequestOptions?: {
+export const getS3RequestObject = (options: S3RequestOptions, extendedRequestOptions?: {
     method: "GET" | "PUT" | "POST" | "DELETE" | "HEAD" | "OPTIONS" | "PATCH" | "TRACE"
     [k: string]: any
 }) => {
@@ -62,6 +62,14 @@ export const s3Request = (options: S3RequestOptions, extendedRequestOptions?: {
             accessKeyId,
             secretAccessKey
         })
+        return signedReq
+}
+
+export const s3Request = async (options: S3RequestOptions, extendedRequestOptions?: {
+    method: "GET" | "PUT" | "POST" | "DELETE" | "HEAD" | "OPTIONS" | "PATCH" | "TRACE"
+    [k: string]: any
+}) => {
+    const signedReq = getS3RequestObject(options,extendedRequestOptions)
         //@ts-ignore
     return axios({
         ...signedReq
@@ -160,6 +168,29 @@ export const getObject: (options: S3GetOptions, axiosOverride?: AxiosRequestConf
         if (error?.response.status === 404) throw new FileNotFoundError(`File ${path} not found in ${provider}`);
         else throw error;
     }
+}
+
+export const getPresignedUrl: (options: S3GetOptions, axiosOverride?: AxiosRequestConfig) => Promise<string> = async (options: S3GetOptions, axiosOverride?: AxiosRequestConfig) => {
+    const { provider, accessKeyId, secretAccessKey } = options;
+    const path = `/${resolvePath(options)}`
+    const region = provider === CLOUD_PROVIDERS.GCP ? 'region' : options.region;
+    const _ = PROVIDERS[provider];
+    const _host = _.host(options)
+    const host = _host.replace("https://", "").replace("http://", "");
+    if (!_) throw new Error(`Invalid provider ${provider}. Valid providers: ${Object.keys(PROVIDERS)}`);
+    const res = aws4.sign({
+        host,
+        path,
+        service: 's3',
+        region,
+        signQuery: true,
+    },
+        {
+            accessKeyId,
+            secretAccessKey
+        })
+    const signedUrl = _host + res.path
+    return signedUrl;
 }
 
 export const deleteObject: (options: S3GetOptions, axiosOverride?: AxiosRequestConfig) => Promise<boolean> = async (options: S3GetOptions, axiosOverride?: AxiosRequestConfig) => {

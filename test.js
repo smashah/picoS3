@@ -33,6 +33,15 @@ test.serial('Upload a DataURL, check if it uploaded correctly', async t => {
 	    t.is(link,  p3.getProviderConfig().res(options));
 });
 
+test.serial('Get the presigned URL', async t => {
+    const link = await p3.getPresignedUrl({
+        ...options,
+        file
+    })
+    t.log(link)
+    t.truthy(link);
+});
+
 test.serial('Get the uploaded file', async t => {
     const downloadedDataURL = await p3.getObjectDataUrl(options)
 	t.is(downloadedDataURL , file);
