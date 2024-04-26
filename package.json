@@ -6,7 +6,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "npm run build && ava"
+    "test": "npm run build && ava --verbose"
   },
   "repository": {
     "type": "git",
@@ -28,17 +28,17 @@
   },
   "homepage": "https://github.com/smashah/s3lim#readme",
   "devDependencies": {
-    "@sindresorhus/tsconfig": "^1.0.2",
-    "@types/aws4": "^1.5.2",
-    "ava": "^3.15.0",
-    "dotenv": "^10.0.0"
+    "@sindresorhus/tsconfig": "^5.0.0",
+    "@types/aws4": "^1.11.6",
+    "ava": "^6.1.2",
+    "dotenv": "^16.4.5"
   },
   "dependencies": {
-    "@brillout/import": "^0.2.1",
-    "aws4": "^1.11.0",
-    "axios": "^0.26.1",
-    "datauri": "^4.0.1",
-    "debug": "^4.3.2",
-    "file-type": "^18.0.0"
+    "@brillout/import": "^0.2.3",
+    "aws4": "^1.12.0",
+    "axios": "^1.6.8",
+    "datauri": "^4.1.0",
+    "debug": "^4.3.4",
+    "file-type": "^19.0.0"
   }
 }
