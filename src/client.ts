@@ -1,4 +1,6 @@
-import { S3RequestOptions, getTextFile, CLOUD_PROVIDERS, S3UploadOptions, upload, S3GetOptions, getObject, getObjectBuffer, getObjectDataUrl, getObjectBinary, deleteObject, objectExists, getObjectMetadata, getObjectEtag, getProviderConfig, uploadBuffer, S3UploadBufferOptions, S3UploadDataUrlOptions } from './api';
+import { getTextFile, upload, getObject, getObjectBuffer, getObjectDataUrl, getObjectBinary, deleteObject, objectExists, getObjectMetadata, getObjectEtag, getProviderConfig, uploadBuffer } from './api';
+import { CLOUD_PROVIDERS } from './providers';
+import { S3RequestOptions, S3UploadOptions, S3UploadBufferOptions, S3UploadDataUrlOptions, S3GetOptions } from './types';
 
 /**
  * A simple class wrapping of the pico s3 functions.
