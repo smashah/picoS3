@@ -4,3 +4,4 @@ src/
 test.js
 tsconfig.json
 **.ignore.**
+example.env
