@@ -8,7 +8,8 @@ export enum CLOUD_PROVIDERS {
     CONTABO = "CONTABO",
     DO = "DO",
     MINIO = "MINIO",
-    R2 = "R2"
+    R2 = "R2",
+    R2_ALT = "R2_ALT"
 }
 
 /**
@@ -45,6 +46,7 @@ export const PROVIDERS : {
     "MINIO": {
         host: ({ host }: any) => `${host}`,
         url: ({ bucket, filename, directory, host }: any) => `${host}/${bucket}/${resolvePath({filename, directory: `${directory}`})}`,
+        key: ({ bucket, filename, directory, host }: any) => `/${bucket}/${resolvePath({filename, directory: `${directory}`})}`,
         res: ({ bucket, filename, directory, host }: any) => `${host}/${bucket}/${resolvePath({filename, directory: `${directory}`})}`
     },
     "SUPABASE": {
@@ -56,5 +58,10 @@ export const PROVIDERS : {
         host: ({ host, bucket }: any) => `https://${bucket}.${host.replace('https://',"")}`,
         url: ({ bucket, filename, directory, host }: any) => `https://${bucket}.${host.replace('https://',"")}/${resolvePath({filename, directory: `${directory}`})}`,
         res: ({ bucket, filename, directory, host }: any) => `https://${bucket}.${host.replace('https://',"")}/${resolvePath({filename, directory: `${directory}`})}`
+    },
+    "R2_ALT": {
+        host: ({ host, bucket }: any) => `${host}/${bucket}`,
+        url: ({ bucket, filename, directory, host }: any) => `https://${host.replace('https://',"")}/${bucket}/${resolvePath({filename, directory: `${directory}`})}`,
+        res: ({ bucket, filename, directory, host }: any) => `https://${host.replace('https://',"")}/${bucket}/${resolvePath({filename, directory: `${directory}`})}`
     }
 }

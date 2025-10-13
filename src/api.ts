@@ -6,7 +6,7 @@ const err = require('debug')('pico-s3:error')
 import crypto from 'crypto';
 import { import_ } from '@brillout/import'
 import { PROVIDERS, CLOUD_PROVIDERS } from './providers';
-import { S3RequestOptions, SERVICE_PROVIDER_CONFIG, S3UploadBufferOptions, S3UploadDataUrlOptions, S3GetOptions, DataURL } from './types';
+import { S3RequestOptions, SERVICE_PROVIDER_CONFIG, S3UploadBufferOptions, S3UploadDataUrlOptions, S3GetOptions, DataURL, S3PresignedUploadOptions } from './types';
 import { resolvePath } from './utils';
 
 let _ft = null;
@@ -28,6 +28,8 @@ export class FileNotFoundError extends Error {
 
 
 export const getCloudUrl: (options: S3RequestOptions) => string = (options: S3RequestOptions) => PROVIDERS[options.provider].res(options);
+
+export const getFileKey: (options: S3RequestOptions) => string = (options: S3RequestOptions) => PROVIDERS[options.provider].key && PROVIDERS[options.provider].key(options).replace("//","/");
 
 export const getProviderConfig: (provider : CLOUD_PROVIDERS) => SERVICE_PROVIDER_CONFIG = (provider) => PROVIDERS[provider]
 
@@ -80,7 +82,7 @@ export const uploadBuffer: (options: S3UploadBufferOptions) => Promise<string> =
     const { provider, file } = options;
     const _ = PROVIDERS[provider];
     if (!file || file === null) throw new Error("File isnull or undefined")
-    const path = `/${resolvePath(options)}`
+    const path = getFileKey(options) || `/${resolvePath(options)}`
     const _ftResult = await (await ft()).fileTypeFromBuffer(file);
     const { mime } = _ftResult || {}
     const filebuf = file;
@@ -151,7 +153,7 @@ export const getObjectDataUrl: (options: S3GetOptions) => Promise<string> = asyn
 
 export const getObject: (options: S3GetOptions, axiosOverride?: AxiosRequestConfig) => Promise<AxiosResponse> = async (options: S3GetOptions, axiosOverride?: AxiosRequestConfig) => {
     const { provider } = options;
-    const path = `/${resolvePath(options)}`
+    const path = getFileKey(options) || `/${resolvePath(options)}`
     try {
         const START = Date.now();
         db(`Downloading ${path} from ${provider}`);
@@ -172,7 +174,7 @@ export const getObject: (options: S3GetOptions, axiosOverride?: AxiosRequestConf
 
 export const getPresignedUrl: (options: S3GetOptions, axiosOverride?: AxiosRequestConfig) => Promise<string> = async (options: S3GetOptions, axiosOverride?: AxiosRequestConfig) => {
     const { provider, accessKeyId, secretAccessKey } = options;
-    const path = `/${resolvePath(options)}`
+    const path = getFileKey(options) || `/${resolvePath(options)}`
     const region = provider === CLOUD_PROVIDERS.GCP ? 'region' : options.region;
     const _ = PROVIDERS[provider];
     const _host = _.host(options)
@@ -189,13 +191,66 @@ export const getPresignedUrl: (options: S3GetOptions, axiosOverride?: AxiosReque
             accessKeyId,
             secretAccessKey
         })
+    console.log(res)
     const signedUrl = _host + res.path
     return signedUrl;
 }
 
+export const getPresignedUploadUrl: (options: S3PresignedUploadOptions) => Promise<string> = async (options: S3PresignedUploadOptions) => {
+    const { provider, accessKeyId, secretAccessKey, expiresIn = 3600, contentType } = options;
+    const path = getFileKey(options) || `/${resolvePath(options)}`
+    const region = provider === CLOUD_PROVIDERS.GCP ? 'region' : options.region;
+    const _ = PROVIDERS[provider];
+    if (!_) throw new Error(`Invalid provider ${provider}. Valid providers: ${Object.keys(PROVIDERS)}`);
+    
+    const _host = _.host(options)
+    const host = _host.replace("https://", "").replace("http://", "");
+    
+    // Determine protocol (http or https)
+    const protocol = _host.startsWith('https://') ? 'https:' : 'http:';
+    
+    try {
+        db(`Generating presigned upload URL for ${path} on ${provider}`);
+        
+        const urlOptions: any = {
+            host,
+            path,
+            method: 'PUT',
+            service: 's3',
+            region,
+            signQuery: true,
+            expires: expiresIn,
+            protocol
+        };
+        
+        // Add Content-Type header if specified
+        if (contentType) {
+            urlOptions.headers = {
+                'Content-Type': contentType
+            };
+        }
+        
+        // Sign the request
+        const signedRequest = aws4.sign(urlOptions, {
+            accessKeyId,
+            secretAccessKey
+        });
+        
+        // Construct the final presigned URL
+        const presignedUrl = `${protocol}//${signedRequest.host}${signedRequest.path}`;
+        
+        db(`Presigned upload URL generated for ${path} on ${provider}, expires in ${expiresIn}s`);
+        
+        return presignedUrl;
+    } catch (error) {
+        err("PRESIGNED UPLOAD URL ERROR", path, provider, error.message);
+        throw error;
+    }
+}
+
 export const deleteObject: (options: S3GetOptions, axiosOverride?: AxiosRequestConfig) => Promise<boolean> = async (options: S3GetOptions, axiosOverride?: AxiosRequestConfig) => {
     const { provider } = options;
-    const path = `/${resolvePath(options)}`
+    const path = getFileKey(options) || `/${resolvePath(options)}`
     try {
         const START = Date.now();
         db(`Deleting ${path} from ${provider}`);
@@ -219,7 +274,7 @@ export const getObjectMetadata: (options: S3GetOptions, axiosOverride?: AxiosReq
     [k: string]: string
 }> = async (options: S3GetOptions, axiosOverride?: AxiosRequestConfig) => {
     const { provider } = options;
-    const path = `/${resolvePath(options)}`
+    const path = getFileKey(options) || `/${resolvePath(options)}`
     try {
         const START = Date.now();
         db(`Getting Metadata for ${path} from ${provider}`);

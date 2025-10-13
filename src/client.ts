@@ -1,6 +1,6 @@
-import { getTextFile, upload, getObject, getObjectBuffer, getObjectDataUrl, getObjectBinary, deleteObject, objectExists, getObjectMetadata, getObjectEtag, getProviderConfig, uploadBuffer, getPresignedUrl } from './api';
+import { getTextFile, upload, getObject, getObjectBuffer, getObjectDataUrl, getObjectBinary, deleteObject, objectExists, getObjectMetadata, getObjectEtag, getProviderConfig, uploadBuffer, getPresignedUrl, getPresignedUploadUrl } from './api';
 import { CLOUD_PROVIDERS } from './providers';
-import { S3RequestOptions, S3UploadOptions, S3UploadBufferOptions, S3UploadDataUrlOptions, S3GetOptions } from './types';
+import { S3RequestOptions, S3UploadOptions, S3UploadBufferOptions, S3UploadDataUrlOptions, S3GetOptions, S3PresignedUploadOptions } from './types';
 
 /**
  * A simple class wrapping of the pico s3 functions.
@@ -125,5 +125,12 @@ export class PicoS3 {
             ...this.options,
             ...options
         });
+    }
+
+    public async getPresignedUploadUrl(options: Omit<S3PresignedUploadOptions, keyof S3RequestOptions> & Partial<S3RequestOptions>) {
+        return await getPresignedUploadUrl({
+            ...this.options,
+            ...options
+        } as S3PresignedUploadOptions);
     }
 }
