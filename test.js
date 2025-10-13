@@ -30,7 +30,6 @@ test.serial('Upload a DataURL, check if it uploaded correctly', async t => {
             file,
             public: true
         })
-        console.log(link)
 	    t.is(link,  p3.getProviderConfig().res(options));
 });
 

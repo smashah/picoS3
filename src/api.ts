@@ -191,7 +191,6 @@ export const getPresignedUrl: (options: S3GetOptions, axiosOverride?: AxiosReque
             accessKeyId,
             secretAccessKey
         })
-    console.log(res)
     const signedUrl = _host + res.path
     return signedUrl;
 }
@@ -202,16 +201,16 @@ export const getPresignedUploadUrl: (options: S3PresignedUploadOptions) => Promi
     const region = provider === CLOUD_PROVIDERS.GCP ? 'region' : options.region;
     const _ = PROVIDERS[provider];
     if (!_) throw new Error(`Invalid provider ${provider}. Valid providers: ${Object.keys(PROVIDERS)}`);
-    
+
     const _host = _.host(options)
     const host = _host.replace("https://", "").replace("http://", "");
-    
+
     // Determine protocol (http or https)
     const protocol = _host.startsWith('https://') ? 'https:' : 'http:';
-    
+
     try {
         db(`Generating presigned upload URL for ${path} on ${provider}`);
-        
+
         const urlOptions: any = {
             host,
             path,
@@ -222,25 +221,25 @@ export const getPresignedUploadUrl: (options: S3PresignedUploadOptions) => Promi
             expires: expiresIn,
             protocol
         };
-        
+
         // Add Content-Type header if specified
         if (contentType) {
             urlOptions.headers = {
                 'Content-Type': contentType
             };
         }
-        
+
         // Sign the request
         const signedRequest = aws4.sign(urlOptions, {
             accessKeyId,
             secretAccessKey
         });
-        
+
         // Construct the final presigned URL
         const presignedUrl = `${protocol}//${signedRequest.host}${signedRequest.path}`;
-        
+
         db(`Presigned upload URL generated for ${path} on ${provider}, expires in ${expiresIn}s`);
-        
+
         return presignedUrl;
     } catch (error) {
         err("PRESIGNED UPLOAD URL ERROR", path, provider, error.message);
