@@ -406,4 +406,4 @@ MIT
 
 ## Contributing
 
-Issues and pull requests are welcome! Please submit them at [https://github.com/smashah/s3lim/issues](https://github.com/smashah/s3lim/issues)
+Issues and pull requests are welcome! Please submit them at [https://github.com/smashah/picoS3/issues](https://github.com/smashah/picoS3/issues)

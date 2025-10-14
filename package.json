@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/smashah/s3lim.git"
+    "url": "git+https://github.com/smashah/picoS3.git"
   },
   "keywords": [
     "aws",
@@ -24,9 +24,9 @@
   "author": "SMASHAH <shah@idk.uno>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/smashah/s3lim/issues"
+    "url": "https://github.com/smashah/picoS3/issues"
   },
-  "homepage": "https://github.com/smashah/s3lim#readme",
+  "homepage": "https://github.com/smashah/picoS3#readme",
   "devDependencies": {
     "@sindresorhus/tsconfig": "^5.0.0",
     "@types/aws4": "^1.11.6",
