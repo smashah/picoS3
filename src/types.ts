@@ -60,6 +60,10 @@ export type S3PresignedUploadOptions = {
      * Content-Type header for the upload
      */
     contentType?: string,
+    /**
+     * Whether or not the acl access is public once the file is uploaded
+     */
+    public?: boolean
 } & S3RequestOptions
 
 export type SERVICE_PROVIDER_CONFIG = {

@@ -229,6 +229,13 @@ export const getPresignedUploadUrl: (options: S3PresignedUploadOptions) => Promi
             };
         }
 
+      if (options.public) {
+        urlOptions.headers = {
+          ...(urlOptions.headers || {}),
+          'x-amz-acl': 'public-read'
+        }
+      }
+
         // Sign the request
         const signedRequest = aws4.sign(urlOptions, {
             accessKeyId,
