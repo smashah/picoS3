@@ -1,6 +1,6 @@
 {
   "name": "pico-s3",
-  "version": "2.10.0",
+  "version": "2.10.1",
   "description": "A lightweght S3 client that doesn't require the aws sdk.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
