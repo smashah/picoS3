@@ -29,12 +29,16 @@ export class PicoS3 {
                 provider: process.env.PICO_S3_CLOUD_PROVIDER as CLOUD_PROVIDERS,
                 region: process.env.PICO_S3_REGION,
                 bucket: process.env.PICO_S3_BUCKET,
-                host: process.env.PICO_S3_HOST,
+                host: process.env.PICO_S3_HOST?.replace(/\/+$/, ''),
                 accessKeyId: process.env.PICO_S3_ACCESS_KEY_ID,
                 secretAccessKey: process.env.PICO_S3_SECRET_ACCESS_KEY,
             }
-        } else
-            this.options = options;
+        } else {
+            this.options = {
+                ...options,
+                host: options.host?.replace(/\/+$/, '')
+            };
+        }
     }
     public async upload(options: { file: Buffer | string } & S3UploadOptions) {
         if (Buffer.isBuffer(options.file))
