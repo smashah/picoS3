@@ -54,6 +54,82 @@ test.serial('Get the presigned upload URL', async t => {
     t.truthy(link);
     t.true(link.includes('X-Amz-Signature'));
     t.true(link.includes('X-Amz-Expires'));
+    t.false(link.includes('undefined'));
+});
+
+test.serial('Get the presigned upload URL without directory', async t => {
+    const link = await p3.getPresignedUploadUrl({
+        filename: "Invoice_0002.pdf",
+        expiresIn: 3600,
+        contentType: "application/pdf"
+    })
+    t.log(link)
+    t.truthy(link);
+    t.true(link.includes('X-Amz-Signature'));
+    t.true(link.includes('X-Amz-Expires'));
+    t.false(link.includes('undefined'));
+    t.true(link.includes('Invoice_0002.pdf'));
+});
+
+test.serial('Get the presigned upload URL with filename including directory', async t => {
+    const link = await p3.getPresignedUploadUrl({
+        filename: "/invoices/Invoice_0003.pdf",
+        expiresIn: 3600,
+        contentType: "application/pdf"
+    })
+    t.log(link)
+    t.truthy(link);
+    t.true(link.includes('X-Amz-Signature'));
+    t.true(link.includes('X-Amz-Expires'));
+    t.false(link.includes('undefined'));
+    t.true(link.includes('invoices/Invoice_0003.pdf'));
+});
+
+test.serial('Upload a file using presigned URL', async t => {
+    const axios = require('axios');
+    const uploadFilename = "test-presigned-upload.pdf";
+    
+    // Generate presigned upload URL
+    const uploadUrl = await p3.getPresignedUploadUrl({
+        filename: uploadFilename,
+        directory: "/TESTFILES/presigned/",
+        expiresIn: 3600,
+        contentType: "application/pdf"
+    });
+    
+    t.log('Upload URL:', uploadUrl);
+    
+    // Download test PDF
+    const pdfResponse = await axios.get('https://www.princexml.com/samples/invoice-colorful/invoicesample.pdf', {
+        responseType: 'arraybuffer'
+    });
+    
+    const pdfBuffer = Buffer.from(pdfResponse.data);
+    t.log('Downloaded PDF, size:', pdfBuffer.length, 'bytes');
+    
+    // Upload using presigned URL
+    const uploadResponse = await axios.put(uploadUrl, pdfBuffer, {
+        headers: {
+            'Content-Type': 'application/pdf'
+        }
+    });
+    
+    t.is(uploadResponse.status, 200);
+    t.log('Upload successful');
+    
+    // Verify the file exists
+    const exists = await p3.objectExists({
+        filename: uploadFilename,
+        directory: "/TESTFILES/presigned/"
+    });
+    
+    t.true(exists);
+    
+    // Clean up
+    await p3.deleteObject({
+        filename: uploadFilename,
+        directory: "/TESTFILES/presigned/"
+    });
 });
 
 test.serial('Get the uploaded file', async t => {

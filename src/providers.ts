@@ -35,33 +35,33 @@ export const PROVIDERS : {
     },
     "DO": {
         host: ({ region, bucket }: any) => `${bucket}.${region}.digitaloceanspaces.com`,
-        url: ({ bucket, filename, directory, region }: any) => `https://${bucket}.${region}.digitaloceanspaces.com/${resolvePath({filename, directory: `${directory}`})}`,
-        res: ({ bucket, filename, directory, region }: any) => `https://${bucket}.${region}.digitaloceanspaces.com/${resolvePath({filename, directory: `${directory}`})}`
+        url: ({ bucket, filename, directory, region }: any) => `https://${bucket}.${region}.digitaloceanspaces.com/${resolvePath({filename, directory})}`,
+        res: ({ bucket, filename, directory, region }: any) => `https://${bucket}.${region}.digitaloceanspaces.com/${resolvePath({filename, directory})}`
     },
     "CONTABO": {
         host: ({ region }: any) => `${region}.contabostorage.com`,
-        url: ({ bucket, filename, directory, region }: any) => `https://${region}.contabostorage.com/${resolvePath({filename, directory: `${bucket}${directory}`})}`,
-        res: ({ bucket, filename, directory, region }: any) => `https://${region}.contabostorage.com/${resolvePath({filename, directory: `${bucket}${directory}`})}`
+        url: ({ bucket, filename, directory, region }: any) => `https://${region}.contabostorage.com/${resolvePath({filename, directory: directory ? `${bucket}${directory}` : bucket})}`,
+        res: ({ bucket, filename, directory, region }: any) => `https://${region}.contabostorage.com/${resolvePath({filename, directory: directory ? `${bucket}${directory}` : bucket})}`
     },
     "MINIO": {
         host: ({ host }: any) => `${host}`,
-        url: ({ bucket, filename, directory, host }: any) => `${host}/${bucket}/${resolvePath({filename, directory: `${directory}`})}`,
-        key: ({ bucket, filename, directory, host }: any) => `/${bucket}/${resolvePath({filename, directory: `${directory}`})}`,
-        res: ({ bucket, filename, directory, host }: any) => `${host}/${bucket}/${resolvePath({filename, directory: `${directory}`})}`
+        url: ({ bucket, filename, directory, host }: any) => `${host}/${bucket}/${resolvePath({filename, directory})}`,
+        key: ({ bucket, filename, directory, host }: any) => `/${bucket}/${resolvePath({filename, directory})}`,
+        res: ({ bucket, filename, directory, host }: any) => `${host}/${bucket}/${resolvePath({filename, directory})}`
     },
     "SUPABASE": {
         host: ({ host }: any) => `${host}`,
-        url: ({ bucket, filename, directory, host }: any) => `${host}/storage/v1/s3/${bucket}/${resolvePath({filename, directory: `${directory}`})}`,
-        res: ({ bucket, filename, directory, host }: any) => `${host}/storage/v1/s3/${bucket}/${resolvePath({filename, directory: `${directory}`})}`
+        url: ({ bucket, filename, directory, host }: any) => `${host}/storage/v1/s3/${bucket}/${resolvePath({filename, directory})}`,
+        res: ({ bucket, filename, directory, host }: any) => `${host}/storage/v1/s3/${bucket}/${resolvePath({filename, directory})}`
     },
     "R2": {
         host: ({ host, bucket }: any) => `https://${bucket}.${host.replace('https://',"")}`,
-        url: ({ bucket, filename, directory, host }: any) => `https://${bucket}.${host.replace('https://',"")}/${resolvePath({filename, directory: `${directory}`})}`,
-        res: ({ bucket, filename, directory, host }: any) => `https://${bucket}.${host.replace('https://',"")}/${resolvePath({filename, directory: `${directory}`})}`
+        url: ({ bucket, filename, directory, host }: any) => `https://${bucket}.${host.replace('https://',"")}/${resolvePath({filename, directory})}`,
+        res: ({ bucket, filename, directory, host }: any) => `https://${bucket}.${host.replace('https://',"")}/${resolvePath({filename, directory})}`
     },
     "R2_ALT": {
         host: ({ host, bucket }: any) => `${host}/${bucket}`,
-        url: ({ bucket, filename, directory, host }: any) => `https://${host.replace('https://',"")}/${bucket}/${resolvePath({filename, directory: `${directory}`})}`,
-        res: ({ bucket, filename, directory, host }: any) => `https://${host.replace('https://',"")}/${bucket}/${resolvePath({filename, directory: `${directory}`})}`
+        url: ({ bucket, filename, directory, host }: any) => `https://${host.replace('https://',"")}/${bucket}/${resolvePath({filename, directory})}`,
+        res: ({ bucket, filename, directory, host }: any) => `https://${host.replace('https://',"")}/${bucket}/${resolvePath({filename, directory})}`
     }
 }
